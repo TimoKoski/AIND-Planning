@@ -316,7 +316,7 @@ class PlanningGraph():
         https://discussions.udacity.com/t/planning-graph-unit-test/494695/5
         https://discussions.udacity.com/t/confusion-with-add-action-level/245144/12
                         
-        Tried out two solutions:
+        Ended up with two working solutions, tagged in comments:
         - WORKING SOLUTION 1: Not implemented 
         - WORKING SOLUTION 2 (WS2): Implemented
         """
@@ -361,7 +361,7 @@ class PlanningGraph():
         https://discussions.udacity.com/t/planning-graph-unit-test/494695/5
         https://discussions.udacity.com/t/confusion-with-add-action-level/245144/12
         
-        Tried out two solutions:
+        Ended up with two working solutions, tagged in comments:
         - WORKING SOLUTION 1: Not implemented 
         - WORKING SOLUTION 2 (WS2): Implemented
         """
@@ -433,6 +433,17 @@ class PlanningGraph():
         :return: bool
         """
         # TODO test for Inconsistent Effects between nodes
+        """
+        Implementation as presented in
+        http://aima.cs.berkeley.edu/2nd-ed/newchap11.pdf
+        p. 26/42 of the .pdf (original p. 400)
+        """
+        for add_eff in node_a1.action.effect_add:
+            if add_eff in node_a2.action.effect_rem:
+                return True
+        for rem_eff in node_a1.action.effect_rem:
+            if rem_eff in node_a2.action.effect_add:
+                return True                
         return False
 
     def interference_mutex(self, node_a1: PgNode_a, node_a2: PgNode_a) -> bool:
@@ -450,6 +461,17 @@ class PlanningGraph():
         :return: bool
         """
         # TODO test for Interference between nodes
+        """
+        Implementation as presented in
+        http://aima.cs.berkeley.edu/2nd-ed/newchap11.pdf
+        p. 26/42 of the .pdf (original p. 400)
+        """
+        for precond in node_a1.action.precond_pos:
+            if precond in node_a2.action.effect_rem:
+                return True
+        for rem_eff in node_a1.action.effect_rem:
+            if rem_eff in node_a2.action.precond_pos:
+                return True
         return False
 
     def competing_needs_mutex(self, node_a1: PgNode_a, node_a2: PgNode_a) -> bool:
@@ -462,8 +484,20 @@ class PlanningGraph():
         :param node_a2: PgNode_a
         :return: bool
         """
-
         # TODO test for Competing Needs between nodes
+        """
+        Initial implementation as presented in
+        http://aima.cs.berkeley.edu/2nd-ed/newchap11.pdf
+        p. 26/42 of the .pdf (original p. 400)
+        
+        Final ideas and example for implementation:  
+        https://discussions.udacity.com/t/competing-needs-mutex-test-is-failing/491878
+        """
+        
+        for precond1 in node_a1.parents:
+            for precond2 in node_a2.parents:
+                if precond1.is_mutex(precond2) or precond2.is_mutex(precond1):
+                    return True
         return False
 
     def update_s_mutex(self, nodeset: set):
