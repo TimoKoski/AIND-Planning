@@ -306,7 +306,34 @@ class PlanningGraph():
         #   set iff all prerequisite literals for the action hold in S0.  This can be accomplished by testing
         #   to see if a proposed PgNode_a has prenodes that are a subset of the previous S level.  Once an
         #   action node is added, it MUST be connected to the S node instances in the appropriate s_level set.
-
+        """
+        Ideas for the implementation from the following sources:
+        http://aima.cs.berkeley.edu/2nd-ed/newchap11.pdf
+        https://ai-nd.slack.com/archives/C3V8XAP4N/p1512441809000078
+        https://discussions.udacity.com/t/add-action-level-and-add-literal-level-methods/399851/6
+        https://discussions.udacity.com/t/problem-in-parent-child-set-association-in-add-action-level-and-add-literal-level/240345/28
+        https://discussions.udacity.com/t/optimizing-a-search-in-planning-project/286412/3
+        https://discussions.udacity.com/t/planning-graph-unit-test/494695/5
+        https://discussions.udacity.com/t/confusion-with-add-action-level/245144/12
+                        
+        Tried out two solutions:
+        - WORKING SOLUTION 1: Not implemented 
+        - WORKING SOLUTION 2 (WS2): Implemented
+        """
+        
+        #self.a_levels.append(set()) # WORKING SOLUTION 1
+        new_a_set = set() # WS2 # new set to be added as a new action level
+        for action in self.all_actions: # looping through all actions
+            pg_a = PgNode_a(action) # generating action node from each action
+            for state in self.s_levels[level]: # looping through all states in current level
+                if state in pg_a.prenodes: # if state is a precondition of the action, then proceed
+                    #self.a_levels[level].add(pg_a) # WORKING SOLUTION 1
+                    state.children.add(pg_a) # add action node as a child of a state
+                    pg_a.parents.add(state) # add state as a parent for the action node
+                    new_a_set.add(pg_a) # WS2 # add the action node to the set
+        self.a_levels.append(new_a_set) # WS2 # finally append the a_levels with the set
+        
+        
     def add_literal_level(self, level):
         """ add an S (literal) level to the Planning Graph
 
@@ -324,6 +351,30 @@ class PlanningGraph():
         #   may be "added" to the set without fear of duplication.  However, it is important to then correctly create and connect
         #   all of the new S nodes as children of all the A nodes that could produce them, and likewise add the A nodes to the
         #   parent sets of the S nodes
+        """
+        Ideas for the implementation from the following sources:
+        http://aima.cs.berkeley.edu/2nd-ed/newchap11.pdf
+        https://ai-nd.slack.com/archives/C3V8XAP4N/p1512441809000078
+        https://discussions.udacity.com/t/add-action-level-and-add-literal-level-methods/399851/6
+        https://discussions.udacity.com/t/problem-in-parent-child-set-association-in-add-action-level-and-add-literal-level/240345/28
+        https://discussions.udacity.com/t/optimizing-a-search-in-planning-project/286412/3
+        https://discussions.udacity.com/t/planning-graph-unit-test/494695/5
+        https://discussions.udacity.com/t/confusion-with-add-action-level/245144/12
+        
+        Tried out two solutions:
+        - WORKING SOLUTION 1: Not implemented 
+        - WORKING SOLUTION 2 (WS2): Implemented
+        """
+        
+        #self.s_levels.append(set()) # WORKING SOLUTION 1
+        new_s_set = set() # WS2 # new set to be added as a new literal level        
+        for action in self.a_levels[level-1]: # looping through all actions in previous level
+            for state in action.effnodes: # if state is in possible children of the action node, then proceed
+                #self.s_levels[level].add(state) # WORKING SOLUTION 1
+                action.children.add(state) # add state as a child of the action node
+                state.parents.add(action) # add action node as a parent for the state
+                new_s_set.add(state) # WS2 # add the state to the set 
+        self.s_levels.append(new_s_set) # WS2 # finally append the s_levels with the set
 
     def update_a_mutex(self, nodeset):
         """ Determine and update sibling mutual exclusion for A-level nodes

@@ -6,3 +6,13 @@ __pycache__
 .idea/
 tests/.cache/v/cache/lastfailed
 .cache/v/cache/lastfailed
+
+
+# TK: few additions to ignore
+.project
+.pydevproject
+cargo_planning-*
+*.pdf
+heuristic*
+research*
+test_result*
