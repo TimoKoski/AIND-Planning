@@ -492,8 +492,7 @@ class PlanningGraph():
         
         Final ideas and example for implementation:  
         https://discussions.udacity.com/t/competing-needs-mutex-test-is-failing/491878
-        """
-        
+        """        
         for precond1 in node_a1.parents:
             for precond2 in node_a2.parents:
                 if precond1.is_mutex(precond2) or precond2.is_mutex(precond1):
@@ -533,6 +532,13 @@ class PlanningGraph():
         :return: bool
         """
         # TODO test for negation between nodes
+        """
+        Ideas for usage of .symbol from
+        https://discussions.udacity.com/t/confused-on-negation-mutex/242966
+        """
+        if (node_s1.symbol == node_s2.symbol and node_s1.is_pos and not(node_s2.is_pos)) or \
+            (node_s1.symbol == node_s2.symbol and not(node_s1.is_pos) and node_s2.is_pos):
+            return True
         return False
 
     def inconsistent_support_mutex(self, node_s1: PgNode_s, node_s2: PgNode_s):
@@ -552,14 +558,46 @@ class PlanningGraph():
         :return: bool
         """
         # TODO test for Inconsistent Support between nodes
-        return False
+        """
+        Initial ideas as presented in
+        http://aima.cs.berkeley.edu/2nd-ed/newchap11.pdf
+        p. 26/42 of the .pdf (original p. 400)
+        
+        Final ideas for implementation:  
+        https://discussions.udacity.com/t/inconsistent-test-for-inconsistent-support-mutex/249854
+        
+        Especially comment by letyrodri1, Forum Mentor
+        https://discussions.udacity.com/t/inconsistent-test-for-inconsistent-support-mutex/249854/2  
+            '... verify that 
+            if there is a parents pair (p1, p2) 
+            that not p1 is mutex of p2, and 
+            not p2 is mutex of p1 
+            the inconsistent support mutex is False.'
+        """        
+        for parent1 in node_s1.parents:
+            for parent2 in node_s2.parents:
+                if not(parent1.is_mutex(parent2)) and not(parent2.is_mutex(parent1)):
+                    return False                
+        return True
 
     def h_levelsum(self) -> int:
         """The sum of the level costs of the individual goals (admissible if goals independent)
 
         :return: int
         """
+        """
+        Ideas from
+        http://aima.cs.berkeley.edu/2nd-ed/newchap11.pdf
+        https://discussions.udacity.com/t/understand-level-sum-heuristic/225706/4
+        https://discussions.udacity.com/t/how-to-calculate-h-levelsum/264545
+        """
         level_sum = 0
         # TODO implement
         # for each goal in the problem, determine the level cost, then add them together
+        for goal in self.problem.goal:
+            for level_index, level_states in enumerate(self.s_levels,-1):
+                for state in level_states:
+                    if (state.symbol == goal and state.is_pos): 
+                        level_sum += level_index
+                        break 
         return level_sum
